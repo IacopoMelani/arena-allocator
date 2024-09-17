@@ -52,8 +52,6 @@ typedef struct {
     /**
      * @brief A function pointer that returns the total allocated memory actually used, this can be used for debugging
      * to check for memory leaks.
-     * Allocator implements their own version of this function but should return the total allocated memory so user
-     * requested + alignment.
      *
      * @param context A pointer to the effective allocator.
      * @return The total allocated memory.
