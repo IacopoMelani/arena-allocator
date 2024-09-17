@@ -1,0 +1,15 @@
+# VSCode files
+.vscode
+
+# Target files
+target
+
+# Output files
+memdump.txt
+
+# Compiled files
+*.o
+*.out
+
+# Mac files
+.DS_Store

@@ -1,0 +1,5 @@
+# yaml-language-server: $schema=https://json.schemastore.org/clang-format
+BasedOnStyle: llvm
+IndentWidth: 4
+ColumnLimit: 120
+UseTab: Never
