@@ -78,18 +78,6 @@ static void *arena_free_list_find_best_block(Arena *a, BlockClass class, size_t 
  * @return BlockClass most appropriate block class
  */
 static inline BlockClass get_block_class(size_t size);
-/**
- * @brief Lock the arena mutex
- *
- * @param a arena to lock
- */
-static void arena_lock(Arena *a);
-/**
- * @brief Unlock the arena mutex
- *
- * @param a arena to unlock
- */
-static void arena_unlock(Arena *a);
 
 Arena arena_init(void *buffer, size_t size, size_t align, AllocationStrategy strategy) {
     return (Arena){
@@ -159,6 +147,28 @@ void arena_free_all(void *context) {
         a->free_list[i] = 0;
     }
     arena_unlock(a);
+}
+
+void arena_lock(Arena *a) {
+    if (!a->mutex) {
+        return;
+    }
+    int ret = pthread_mutex_lock(a->mutex);
+    if (ret != 0) {
+        error("Failed to lock mutex\n");
+        exit(1);
+    }
+}
+
+void arena_unlock(Arena *a) {
+    if (!a->mutex) {
+        return;
+    }
+    int ret = pthread_mutex_unlock(a->mutex);
+    if (ret != 0) {
+        error("Failed to unlock mutex\n");
+        exit(1);
+    }
 }
 
 static void *arena_alloc_aligned(Arena *a, size_t size) {
@@ -315,28 +325,6 @@ static uintptr_t align_forward(uintptr_t ptr, size_t alignment) {
     }
 
     return p;
-}
-
-static void arena_lock(Arena *a) {
-    if (!a->mutex) {
-        return;
-    }
-    int ret = pthread_mutex_lock(a->mutex);
-    if (ret != 0) {
-        error("Failed to lock mutex\n");
-        exit(1);
-    }
-}
-
-static void arena_unlock(Arena *a) {
-    if (!a->mutex) {
-        return;
-    }
-    int ret = pthread_mutex_unlock(a->mutex);
-    if (ret != 0) {
-        error("Failed to unlock mutex\n");
-        exit(1);
-    }
 }
 
 static inline BlockClass get_block_class(size_t size) {

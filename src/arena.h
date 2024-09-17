@@ -115,6 +115,18 @@ void arena_free(size_t size, void *ptr, void *context);
  */
 void arena_free_all(void *context);
 /**
+ * @brief Lock the arena mutex, if it exists
+ *
+ * @param a arena to lock
+ */
+void arena_lock(Arena *a);
+/**
+ * @brief Unlock the arena mutex, if it exists
+ *
+ * @param a arena to unlock
+ */
+void arena_unlock(Arena *a);
+/**
  * @brief Get the total allocated memory from the arena
  *
  * @param context arena to get the allocated memory from, is a void* to statify the Allocator interface
@@ -122,7 +134,10 @@ void arena_free_all(void *context);
  */
 static inline size_t arena_allocated(void *context) {
     Arena *a = (Arena *)context;
-    return a->committed;
+    arena_lock(a);
+    size_t comm = a->committed;
+    arena_unlock(a);
+    return comm;
 }
 
 /**
@@ -131,6 +146,7 @@ static inline size_t arena_allocated(void *context) {
  * @param a arena to set the mutex for
  * @param mutex mutex to set, mutex should be already allocated and initialized by the user before calling this
  * function, setting a NULL mutex will disable the mutex
+ * This function is not thread safe, make sure to not call it while other threads are using the arena.
  */
 static inline void arena_set_attr_mutex(Arena *a, pthread_mutex_t *mutex) { a->mutex = mutex; }
 
