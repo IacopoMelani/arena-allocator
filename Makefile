@@ -30,6 +30,7 @@ comp_test_linked_list: test/test_linked_list.o test/arena.o test/memdump.o
 comp_test_binary_tree: test/test_binary_tree.o test/arena.o test/memdump.o
 	$(CC) $(DBGFLAGS) -o target/test/test_binary_tree target/test/obj/test_binary_tree.o target/test/obj/arena.o target/test/obj/memdump.o
 
+test_all: test_arena test_linked_list test_binary_tree
 test_arena: comp_test_arena
 	./target/test/test_arena > target/test/output/test_arena.txt
 test_linked_list: comp_test_linked_list
