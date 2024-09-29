@@ -26,7 +26,6 @@ install_lib: release/arena.o
 	cp src/arena.h target/release/include/arena.h
 	cp src/alloc.h target/release/include/alloc.h
 	tar -czf target/release/arena.tar.gz -C $(PWD)/target/release libarena.a include
-	rm -f target/release/libarena.a target/release/include/arena.h target/release/include/alloc.h
 
 comp_test_arena: test/test_arena.o test/arena.o test/memdump.o
 	$(CC) $(DBGFLAGS) -o target/test/test_arena target/test/obj/test_arena.o target/test/obj/arena.o target/test/obj/memdump.o
