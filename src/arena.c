@@ -9,7 +9,7 @@
 #include <stdio.h>
 #define printf(...) printf(__VA_ARGS__)
 #else
-#define printf(x, ...)
+#define printf(...)
 #endif
 
 /**
@@ -93,7 +93,6 @@ Arena arena_init(void *buffer, size_t size, size_t align, AllocationStrategy str
 
 void *arena_alloc(size_t size, void *context) {
     Arena *a = (Arena *)context;
-
     void *ptr = arena_internal_alloc(size, a);
     return ptr;
 }
