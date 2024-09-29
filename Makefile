@@ -20,6 +20,13 @@ init:
 	mkdir -p target/release/obj
 	mkdir -p target/test/output
 
+install_lib: release/arena.o
+	ar rcs target/release/libarena.a target/release/obj/arena.o
+	mkdir -p target/release/include
+	cp src/arena.h target/release/include/arena.h
+	cp src/alloc.h target/release/include/alloc.h
+	tar -czf target/release/arena.tar.gz -C $(PWD)/target/release libarena.a include
+	rm -f target/release/libarena.a target/release/include/arena.h target/release/include/alloc.h
 
 comp_test_arena: test/test_arena.o test/arena.o test/memdump.o
 	$(CC) $(DBGFLAGS) -o target/test/test_arena target/test/obj/test_arena.o target/test/obj/arena.o target/test/obj/memdump.o
@@ -49,7 +56,26 @@ test/arena.o: src/arena.c
 test/memdump.o: src/memdump.c
 	$(CC) $(DBGFLAGS) -c src/memdump.c -o target/test/obj/memdump.o
 
+release/arena.o: src/arena.c
+	$(CC) $(CFLAGS) -c src/arena.c -o target/release/obj/arena.o
+
 clean:
 	rm -rf target/*
 
-.PHONY: all init clean
+.PHONY: help \
+	init \
+	comp_test_arena \
+	comp_test_linked_list \
+	comp_test_binary_tree \
+	test_all \
+	test_arena \
+	test_linked_list \
+	test_binary_tree \
+	test/test_arena.o \
+	test/test_linked_list.o \
+	test/test_binary_tree.o \
+	test/arena.o \
+	test/memdump.o \
+	release/arena.o \
+	clean \
+	install_lib
