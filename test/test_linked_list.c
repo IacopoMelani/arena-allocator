@@ -67,13 +67,9 @@ int main(void) {
 
     size_t size = sizeof(Node) * 20;
 
-    pthread_mutex_t *mutex = malloc(sizeof(pthread_mutex_t));
-    pthread_mutex_init(mutex, NULL);
-
     void *buffer = malloc(size);
 
     Arena arena = arena_init(buffer, size, DEFAULT_ALLIGNMENT, BestFit);
-    arena_set_attr_mutex(&arena, mutex);
 
     Allocator allocator = arena_alloc_init(&arena);
 
@@ -126,10 +122,6 @@ int main(void) {
 
     free(buffer);
     buffer = NULL;
-
-    pthread_mutex_destroy(mutex);
-    free(mutex);
-    mutex = NULL;
 
     info("test_linked_list passed\n");
 

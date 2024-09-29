@@ -1,7 +1,6 @@
 #include "../src/arena.h"
 #include "../src/memdump.h"
 #include "../src/utils.h"
-#include <sys/_pthread/_pthread_mutex_t.h>
 
 typedef struct {
     size_t y;
@@ -13,12 +12,8 @@ int main(void) {
 
     size_t size = 1024 * 1024 * 64;
 
-    pthread_mutex_t *mutex = malloc(sizeof(pthread_mutex_t));
-    pthread_mutex_init(mutex, NULL);
-
     void *buffer = malloc(size);
     Arena arena = arena_init(buffer, size, DEFAULT_ALLIGNMENT, BestFit);
-    arena_set_attr_mutex(&arena, mutex);
     Allocator allocator = arena_alloc_init(&arena);
 
     int *x = make(int, 420, allocator);
@@ -87,10 +82,6 @@ int main(void) {
 
     free(buffer);
     buffer = NULL;
-
-    pthread_mutex_destroy(mutex);
-    free(mutex);
-    mutex = NULL;
 
     info("Arena test passed\n");
 

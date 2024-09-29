@@ -88,15 +88,13 @@ Arena arena_init(void *buffer, size_t size, size_t align, AllocationStrategy str
         .committed = 0,
         .free_list = {0},
         .strategy = strategy,
-        .mutex = NULL,
     };
 }
 
 void *arena_alloc(size_t size, void *context) {
     Arena *a = (Arena *)context;
-    arena_lock(a);
+
     void *ptr = arena_internal_alloc(size, a);
-    arena_unlock(a);
     return ptr;
 }
 
@@ -106,7 +104,6 @@ void *arena_realloc(size_t new_size, size_t old_size, void *ptr, void *context) 
     }
 
     Arena *a = (Arena *)context;
-    arena_lock(a);
 
     void *new_ptr = arena_internal_alloc(new_size, a);
     if (new_ptr) {
@@ -114,60 +111,31 @@ void *arena_realloc(size_t new_size, size_t old_size, void *ptr, void *context) 
     }
     BlockClass class = get_block_class(old_size);
     arena_recycle_alloc((Arena *)context, ptr, old_size, class);
-    arena_unlock(a);
     return new_ptr;
 }
 
 void *arena_calloc(size_t count, size_t size, void *context) {
     Arena *a = (Arena *)context;
-    arena_lock(a);
+
     size_t total_size = count * size;
     void *ptr = arena_internal_alloc(total_size, a);
     if (ptr) {
         memset(ptr, 0, total_size);
     }
-    arena_unlock(a);
     return ptr;
 }
 
 void arena_free(size_t size, void *ptr, void *context) {
     BlockClass class = get_block_class(size);
-    Arena *a = (Arena *)context;
-    arena_lock(a);
     arena_recycle_alloc((Arena *)context, ptr, size, class);
-    arena_unlock(a);
 }
 
 void arena_free_all(void *context) {
     Arena *a = (Arena *)context;
-    arena_lock(a);
     a->offset = 0;
     a->committed = 0;
     for (int i = 0; i < FREE_LIST_CLASSES; i++) {
         a->free_list[i] = 0;
-    }
-    arena_unlock(a);
-}
-
-void arena_lock(Arena *a) {
-    if (!a->mutex) {
-        return;
-    }
-    int ret = pthread_mutex_lock(a->mutex);
-    if (ret != 0) {
-        error("Failed to lock mutex\n");
-        exit(1);
-    }
-}
-
-void arena_unlock(Arena *a) {
-    if (!a->mutex) {
-        return;
-    }
-    int ret = pthread_mutex_unlock(a->mutex);
-    if (ret != 0) {
-        error("Failed to unlock mutex\n");
-        exit(1);
     }
 }
 
